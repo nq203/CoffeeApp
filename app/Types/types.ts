@@ -1,7 +1,10 @@
 export type RootStackParamList = {
   Tabs: undefined;
+  CoffeeShop: { shop: CoffeeShop };
   Login: { itemId: number; otherParam?: string };
   Register: {itemId: number, otherParam?: string};
+  CreateForumPost: undefined;
+  Post: { post: ForumPost };
 };
 
 export type BottomTabParamList = {
@@ -20,13 +23,19 @@ export interface CoffeeShop {
   closing_hours: string;
   images: string[];
   amenities: string[];
-  reviews: string[];
   created_at: string;
   updated_at: string;
+};
+export interface GroupOfCoffeeShop {
+  id: string;
+  title: string;
+  images: string[];
+  coffeeshop_ids: string[];
 };
 export interface Review {
   id: string;
   user: string;
+  shopId: string;
   rating_space: number;
   rating_service: number;
   rating_drinks: number;
@@ -39,7 +48,9 @@ export interface User {
   id: string;
   username: string;
   password: string;
+  name: string;
   email: string;
+  photoURL: string;
   favorites: string[];
   favorite_cafes: string[];
   created_at: string;
@@ -48,16 +59,17 @@ export interface User {
 
 export interface ForumPost {
   id: string;
+  user: string;
   content: string;
-  comments: string[];
   images: string[];
+  liked: string[];
+  comment: string[];
   created_at: string;
 }
 export interface Comment {
   id: string;
   user: string;
+  liked: string[];
   content: string;
   created_at: string;
 }
-export interface FavoriteCofe {
-};

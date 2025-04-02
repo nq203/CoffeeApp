@@ -2,6 +2,7 @@ import { db, auth, collection, doc, setDoc, getDoc, updateDoc } from "../firebas
 import { User } from "@/app/Types/types";
 import { arrayUnion, arrayRemove } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { uploadImageFromUri } from "./storageService";
 
 const userCollection = collection(db, "users");
 
@@ -20,6 +21,8 @@ export const registerUser = async (email: string, password: string) => {
       favorite_cafes: [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
+      name: email.split("@")[0],
+      photoURL: ""
     };
 
     await setDoc(doc(userCollection, user.uid), newUser);
@@ -56,6 +59,39 @@ export const getUser = async (userId: string) => {
     }
   } catch (error) {
     console.error("Lỗi lấy thông tin người dùng:", error);
+    throw error;
+  }
+};
+// 🟢 **Cập nhật thông tin người dùng**
+export const updateUser = async (
+  userId: string,
+  updatedData: Partial<Omit<User, "id" | "created_at">> // Exclude `id` and `created_at` from updatable fields
+) => {
+  try {
+    const userRef = doc(userCollection, userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error("Người dùng không tồn tại!");
+    }
+    if(updatedData.photoURL){
+      // storge image to storage
+      // console.log("LOG :",updatedData.photoURL);
+      const ImageURL = await uploadImageFromUri(updatedData.photoURL,'avatar-user');
+      console.log(ImageURL);
+      updatedData.photoURL = ImageURL;
+    }
+    // Prepare the updated data with a new `updated_at` timestamp
+    const dataToUpdate = {
+      ...updatedData,
+      updated_at: new Date().toISOString(),
+    };
+
+    await updateDoc(userRef, dataToUpdate);
+    console.log("Cập nhật thông tin người dùng thành công!");
+    return { success: true, data: dataToUpdate };
+  } catch (error) {
+    console.error("Lỗi cập nhật thông tin người dùng:", error);
     throw error;
   }
 };

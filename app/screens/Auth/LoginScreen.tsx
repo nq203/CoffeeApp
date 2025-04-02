@@ -29,7 +29,7 @@ const LoginScreen = ({ navigation }: Props) => {
             className="w-[100px] h-[100px] rounded-full"
           />
           <Text className="text-2xl text-[#543310]  font-semibold">
-            Cafe gì chưa người đẹp ?
+            Cafe đê
           </Text>
           <FormFiled
             title="Email"

@@ -8,7 +8,7 @@ import CoffeeShopCard from "../components/CoffeeShopCard";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/redux/store";
 import { LogOutIcon } from "lucide-react-native";
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation}:any) => {
   const [favorites, setFavorites] = useState<CoffeeShop[]>([]);
   const { location } = useSelector((state: RootState) => state.location);
   const {user} = useSelector((state : RootState) => state.user);
@@ -31,11 +31,11 @@ const ProfileScreen = () => {
   }
 
   return (
-    <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing}
+    <ScrollView className="flex-1 bg-[#D8D2C2]" refreshControl={<RefreshControl refreshing={refreshing}
       onRefresh={getListFavoriteCoffee}
     />}>
       {/* Header */}
-      <View className="p-5 rounded-b-3xl">
+      <View className="p-5 rounded-b-3xl ">
         <Text className="text-2xl font-bold text-black">Thông tin cá nhân</Text>
         <View className="flex-row items-center justify-between mt-3">
           {/* Avatar và thông tin user */}
@@ -45,20 +45,20 @@ const ProfileScreen = () => {
               className="w-16 h-16 rounded-full"
             />
             <View className="ml-4">
-              <Text className="text-xl font-bold">{user.username}</Text>
+              <Text className="text-xl font-bold">{user.name}</Text>
               <Text className="text-gray-700">{user.email}</Text>
             </View>
           </View>
 
           {/* Nút đăng xuất */}
-          <Pressable onPress={logoutUser} className="p-2 bg-red-500 rounded-full">
+          <Pressable onPress={logoutUser} className="p-2 bg-[#854836] rounded-full">
             <LogOutIcon size={24} color="white" />
           </Pressable>
         </View>
 
         {/* Nút Chỉnh sửa & Đóng góp */}
         <View className="flex-row mt-4 justify-around">
-          <Pressable className="bg-white px-4 py-2 rounded-lg mr-2">
+          <Pressable className="bg-white px-4 py-2 rounded-lg mr-2" onPress={() => navigation.navigate('EditProfile')}>
             <Text className="text-black font-bold">Chỉnh sửa</Text>
           </Pressable>
           <Pressable className="bg-white px-4 py-2 rounded-lg">
@@ -68,14 +68,12 @@ const ProfileScreen = () => {
       </View>
 
       {/* Tabs */}
-      <View className="flex-row justify-around bg-[#D2B48C] p-3 mt-3 rounded-t-3xl">
-        <Text className="font-bold">Reviews</Text>
-        <Text className="font-bold">Đóng góp</Text>
-        <Text className="font-bold text-[#854836]">Yêu thích</Text>
+      <View className="flex-row justify-around bg-[#D2B48C] p-3 mt-3 rounded-t-3xl ">
+        <Text className="font-bold ]">Các quán cafe yêu thích</Text>
       </View>
 
       {/* Danh sách quán yêu thích */}
-      <View className="bg-[#f5f5f5]">
+      <View className="">
         {favorites.length > 0 ? (
           favorites.map((shop) => (
             <CoffeeShopCard key={shop.id} shop={shop} location={location} />

@@ -9,6 +9,10 @@ import { RootStackParamList } from "../Types/types";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import { useAuth } from "../../Firebase/Services/authService";
+import CoffeeShopScreen from "../screens/CoffeeShopScreen/CoffeeShopScreen";
+import CreateForumPostScreen from "../screens/Forum/CreateForumPostScreen";
+import PostScreen from "../screens/Forum/PostScreen";
+
 const Stack = createStackNavigator<RootStackParamList>();
 
 export type LoginScreenNavigationProp = StackNavigationProp<
@@ -25,27 +29,22 @@ export type RegisterScreenRouteProp = RouteProp<RootStackParamList, "Register">;
 
 export default function StackNavigator() {
   const { currentUser, loading } = useAuth();
-  if (loading) return null; // Hiển thị Splash Screen nếu cần
+
+  if (loading) return null;
+
   return (
     <Stack.Navigator initialRouteName={currentUser ? "Tabs" : "Login"}>
       {currentUser ? (
-        <Stack.Screen
-          name="Tabs"
-          component={TabNavigator}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
+          <Stack.Screen name="CoffeeShop" component={CoffeeShopScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="CreateForumPost" component={CreateForumPostScreen} options={{ headerShown: false }}/>
+          <Stack.Screen name="Post" component={PostScreen} options={{ headerShown: false }}/>
+        </>
       ) : (
         <>
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
-            name="Register"
-            component={RegisterScreen}
-            options={{ headerShown: false }}
-          />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
         </>
       )}
     </Stack.Navigator>

@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator } from "react-native";
+import { View, Text, ActivityIndicator, RefreshControl } from "react-native";
 import React, { useEffect, useState } from "react";
 import SlideShow from "./components/SlideShow";
 import { ScrollView } from "react-native-gesture-handler";
@@ -7,18 +7,21 @@ import { sampleCoffeeShop } from "@/app/sampleData";
 import { sampleReview } from "@/app/sampleData";
 import * as Location from "expo-location";
 import { getAllCoffeeShops } from "@/Firebase/Services/coffeeShopService";
-import { CoffeeShop } from "@/app/Types/types";
+import { CoffeeShop, GroupOfCoffeeShop } from "@/app/Types/types";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setLocation } from "@/app/redux/slices/locationSlice";
 import { setUser } from "@/app/redux/slices/userSlice";
 import { RootState } from "@/app/redux/store";
 import { useAuth } from "@/Firebase/Services/authService";
 import { getUser } from "@/Firebase/Services/userService";
+import { addGroupOfCoffeeShop, getAllGroupsOfCoffeeShops } from "@/Firebase/Services/groupCoffeeShopService";
+import GroupCoffeeShopCard from "../components/GroupCoffeeShopCard";
 // import MapScreen from "../components/MapComponent";
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const { location, loading } = useSelector((state: RootState) => state.location);
-  const [coffeeShops, setCoffeeShops] = useState<CoffeeShop[]> ([]);
+  const [groupCoffeeShops, setGroupCoffeeShops] = useState<GroupOfCoffeeShop[]> ([]);
+   const [refreshing, setRefreshing] = useState(false);
   const { currentUser } = useAuth();
   useEffect(()=>{
     async function storeUser() {
@@ -46,30 +49,32 @@ const HomeScreen = () => {
     }
     getCurrentLocation();
   }, [currentUser]);
-  useEffect(() => {
-    async function fetchCoffeeShops() {
+  async function fetchGroupCoffeeShops() {
       setLoading(true);
       try {
-        const data = await getAllCoffeeShops();
-        setCoffeeShops(data);
+        const data = await getAllGroupsOfCoffeeShops();
+        // await addGroupOfCoffeeShop(data[0]);
+        setGroupCoffeeShops(data);
       } catch (error) {
         console.error("Error fetching coffee shops:", error);
       }
       setLoading(false);
     }
+  useEffect(() => {
+    
 
-    fetchCoffeeShops();
+    fetchGroupCoffeeShops();
   }, []);
   return (
-    <View className="flex-1 justify-start item-center">
-      <ScrollView>
+    <View className="flex-1 justify-start item-center p-2.5 bg-[#D8D2C2]">
+      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchGroupCoffeeShops}/>}>
         <SlideShow />
         <View className="w-full">
         {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
           ) : (
-            coffeeShops.map((shop) => (
-              <CoffeeShopCard key={shop.id} shop={shop} location={location} />
+            groupCoffeeShops.map((group) => (
+              <GroupCoffeeShopCard key={group.id} group={group} location={location} />
             ))
           )}
         </View>
