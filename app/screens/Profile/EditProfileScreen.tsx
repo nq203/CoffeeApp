@@ -83,7 +83,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
   };
 
   return (
-    <ScrollView className="flex-1 p-4 bg-[#D8D2C2]">
+    <ScrollView className="flex-1 p-4 bg-[#F6F1ED]">
       {/* Profile Card */}
 
       <View className=" items-center mb-6">

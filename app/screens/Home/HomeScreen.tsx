@@ -66,12 +66,12 @@ const HomeScreen = () => {
     fetchGroupCoffeeShops();
   }, []);
   return (
-    <View className="flex-1 justify-start item-center p-2.5 bg-[#D8D2C2]">
+    <View className="flex-1 justify-start item-center p-2.5 bg-[#F6F1ED]">
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchGroupCoffeeShops}/>}>
         <SlideShow />
         <View className="w-full">
         {loading ? (
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color="#854836" />
           ) : (
             groupCoffeeShops.map((group) => (
               <GroupCoffeeShopCard key={group.id} group={group} location={location} />

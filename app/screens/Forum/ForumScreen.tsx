@@ -34,16 +34,16 @@ const ForumScreen = () => {
   );
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-[#F6F1ED]">
       <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchPosts}/>}>
       {/* Header */}
-      <View className="flex-row justify-between items-center px-4 py-4 bg-white border-b border-gray-200">
-        <Text className="text-2xl font-bold">Forum</Text>
+      <View className="flex-row justify-between items-center px-4 py-4">
+        <Text className="text-2xl font-bold">Tương tác cộng đồng</Text>
         <TouchableOpacity 
           className="p-2"
           onPress={handleCreatePost}
         >
-          <Ionicons name="add-circle" size={24} color="#007AFF" />
+          <Ionicons name="add-circle" size={30} color="#854836" />
         </TouchableOpacity>
       </View>
       

@@ -2,7 +2,7 @@ import { View, Text, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import SearchBar from "./components/SearchBar";
 import FilterBar from "./components/FilterBar";
-import { CoffeeShop } from "@/app/Types/types";
+import { CoffeeShop, Utilities } from "@/app/Types/types";
 import { getAllCoffeeShops } from "@/Firebase/Services/coffeeShopService";
 import CoffeeShopCard from "../components/CoffeeShopCard";
 import { useSelector } from "react-redux";
@@ -10,10 +10,14 @@ import { RootState } from "@/app/redux/store";
 import { getDistanceFromUser } from "@/app/utils/distance";
 
 const SreachScreen = () => {
-  const [filterName,setFilterName] = useState<string>("");
+  const [filterName, setFilterName] = useState<string>("");
+  const [filteraddress, setFilterAdress] = useState<string>("");
+  const [filterFavorite, setFilterFavorite] = useState<number | null>();
   const [coffeeShops, setCoffeeShops] = useState<CoffeeShop[]>([]);
-  const [filterCoffeeShops,setFilterCoffeeShops] = useState<CoffeeShop[]>([]);
-  const { location, loading } = useSelector((state: RootState) => state.location);
+  const [filterCoffeeShops, setFilterCoffeeShops] = useState<CoffeeShop[]>([]);
+  const { location, loading } = useSelector(
+    (state: RootState) => state.location
+  );
   useEffect(() => {
     const fetchCoffeeShops = async () => {
       try {
@@ -32,20 +36,16 @@ const SreachScreen = () => {
   const onSearch = (text: string) => {
     setFilterName(text);
   };
-
+  const onFilter = (utility: number | null, address: string) => {
+    setFilterFavorite(utility);
+    setFilterAdress(address);
+  };
   useEffect(() => {
-    if (!location) {
-      // If location is unavailable, just filter by name
-      const filteredByName = coffeeShops.filter((shop) =>
-        shop.name.toLowerCase().includes(filterName.toLowerCase())
-      );
-      setFilterCoffeeShops(filteredByName);
-    } else {
-      // Filter by name and sort by distance
-      const filteredAndSorted = coffeeShops
-        .filter((shop) =>
-          shop.name.toLowerCase().includes(filterName.toLowerCase())
-        )
+    let currentCoffeeShopfilter = [...coffeeShops];
+
+    // Tính khoảng cách
+    if (location) {
+      currentCoffeeShopfilter = currentCoffeeShopfilter
         .map((shop) => ({
           ...shop,
           distance: getDistanceFromUser(
@@ -55,19 +55,42 @@ const SreachScreen = () => {
             shop.longitude
           ),
         }))
-        .sort((a, b) => a.distance - b.distance); // Sort by distance (ascending)
-      setFilterCoffeeShops(filteredAndSorted);
+        .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
     }
-  }, [filterName, coffeeShops, location]);
+
+    // Lọc theo tên
+    if (filterName) {
+      currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) =>
+        shop.name.toLowerCase().includes(filterName.toLowerCase())
+      );
+    }
+
+    // Lọc theo địa chỉ
+    if (filteraddress) {
+      currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) =>
+        shop.address.toLowerCase().includes(filteraddress.toLowerCase())
+      );
+    }
+
+    // Lọc theo tiện ích
+    if (filterFavorite !== null && filterFavorite !== undefined) {
+      currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) =>
+        shop.utilities.includes(filterFavorite)
+      );
+    }
+
+    setFilterCoffeeShops(currentCoffeeShopfilter);
+  }, [filterName, filterFavorite, filteraddress, coffeeShops, location]);
+
   return (
-    <View className="flex-1 justify-start item-center p-2.5 bg-[#D8D2C2]">
-      <SearchBar onSearch={onSearch}/>
-      <FilterBar />
+    <View className="flex-1 justify-start item-center p-2.5 bg-[#F6F1ED]">
+      <SearchBar onSearch={onSearch} />
+      <FilterBar onFilter={onFilter} />
       <ScrollView>
-          {filterCoffeeShops.map((shop) => (
-            <CoffeeShopCard key={shop.id} shop={shop} location={location} />
-          ))}
-        </ScrollView>
+        {filterCoffeeShops.map((shop) => (
+          <CoffeeShopCard key={shop.id} shop={shop} location={location} />
+        ))}
+      </ScrollView>
     </View>
   );
 };

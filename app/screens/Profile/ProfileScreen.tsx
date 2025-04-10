@@ -31,7 +31,7 @@ const ProfileScreen = ({navigation}:any) => {
   }
 
   return (
-    <ScrollView className="flex-1 bg-[#D8D2C2]" refreshControl={<RefreshControl refreshing={refreshing}
+    <ScrollView className="flex-1 bg-[#F6F1ED]" refreshControl={<RefreshControl refreshing={refreshing}
       onRefresh={getListFavoriteCoffee}
     />}>
       {/* Header */}

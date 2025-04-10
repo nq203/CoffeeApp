@@ -31,7 +31,7 @@ export default function TabNavigator() {
         tabBarActiveTintColor: '#854836',
         tabBarInactiveTintColor: 'gray',
         tabBarStyle: {
-          backgroundColor: '#D8D2C2',
+          backgroundColor: '#F6F1ED',
         },
       })}
     >

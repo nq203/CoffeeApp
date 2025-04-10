@@ -22,7 +22,7 @@ export interface CoffeeShop {
   opening_hours: string;
   closing_hours: string;
   images: string[];
-  amenities: string[];
+  utilities: number[];
   created_at: string;
   updated_at: string;
 };
@@ -72,4 +72,9 @@ export interface Comment {
   liked: string[];
   content: string;
   created_at: string;
+}
+export interface Utilities {
+  id: string;
+  code: number;
+  name: string;
 }

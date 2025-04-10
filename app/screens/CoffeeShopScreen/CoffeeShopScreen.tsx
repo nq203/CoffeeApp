@@ -21,6 +21,7 @@ import {
   addReview,
   getReviewsByShopId,
 } from "@/Firebase/Services/reviewService";
+import UserCommentCard from "./components/UserCommentCard";
 
 type RatingCriteria = {
   label: string;
@@ -31,7 +32,7 @@ type RatingCriteria = {
 export default function CoffeeShopScreen() {
   const route = useRoute();
   const { shop }: { shop: CoffeeShop } = route.params as { shop: CoffeeShop };
-  const {user} = useSelector((state : RootState) => state.user);
+  const { user } = useSelector((state: RootState) => state.user);
   const { location } = useSelector((state: RootState) => state.location);
   const [comment, setComment] = useState<string>("");
   const [ratingSpace, setRatingSpace] = useState(5);
@@ -74,13 +75,7 @@ export default function CoffeeShopScreen() {
     Linking.openURL(googleMapsUrl);
   };
 
-  const averageRating =
-    reviews.length > 0
-      ? (
-          reviews.reduce((sum, review) => sum + review.rating_drinks, 0) /
-          reviews.length
-        ).toFixed(1)
-      : "Chưa có";
+
 
   const handleSubmitReview = async () => {
     if (!comment.trim()) {
@@ -116,12 +111,18 @@ export default function CoffeeShopScreen() {
 
   const getEmojiForRating = (rating: number) => {
     switch (rating) {
-      case 5: return "😍";
-      case 4: return "😊";
-      case 3: return "😐";
-      case 2: return "😕";
-      case 1: return "😢";
-      default: return "😊";
+      case 5:
+        return "😍";
+      case 4:
+        return "😊";
+      case 3:
+        return "😐";
+      case 2:
+        return "😕";
+      case 1:
+        return "😢";
+      default:
+        return "😊";
     }
   };
 
@@ -163,44 +164,24 @@ export default function CoffeeShopScreen() {
         </View>
 
         <Pressable
-          className="bg-[#854836] p-2 mt-3 rounded-lg flex-row items-center"
           onPress={openGoogleMaps}
+          className="mt-4 rounded-2xl self-start"
+          android_ripple={{ color: "#6b4c38" }}
         >
-          <Navigation size={18} color="#fff" />
-          <Text className="text-white text-center ml-2">Đi thôi</Text>
+          <View className="bg-[#854836] px-4 py-3 flex-row items-center shadow-md rounded-2xl">
+            <Navigation size={22} color="#fff" />
+            <Text className="text-white text-base font-semibold ml-2">
+              Đi thôi
+            </Text>
+          </View>
         </Pressable>
 
-        <View className="items-center mb-4">
-          <Text className="text-lg font-semibold">
-            ⭐ Điểm trung bình: {averageRating} / 5
-          </Text>
-          <Text className="text-gray-500">{reviews.length} đánh giá</Text>
-        </View>
+        
 
         {/* Danh sách đánh giá */}
-        <Text className="text-lg font-semibold mb-2">
-          Đánh giá từ khách hàng:
-        </Text>
-        {loading ? (
-          <ActivityIndicator size="large" color="#854836" />
-        ) : reviews.length > 0 ? (
-          reviews.map((review, index) => (
-            <View key={index} className="bg-gray-100 p-4 rounded-lg mb-2">
-              <Text className="font-bold">{review.user}</Text>
-              <Text className="text-gray-700">{review.comment}</Text>
-              <View className="flex-row mt-2">
-                <Text className="text-yellow-500 mr-2">
-                  ⭐ {review.rating_drinks}/5
-                </Text>
-                <Text className="text-gray-500 text-sm">
-                  {new Date(review.created_at).toLocaleDateString()}
-                </Text>
-              </View>
-            </View>
-          ))
-        ) : (
-          <Text className="text-gray-500">Chưa có đánh giá nào.</Text>
-        )}
+        {loading ? <ActivityIndicator />
+        :<UserCommentCard reviews={reviews}/>}
+       
 
         {/* Form thêm đánh giá */}
         <View className="mt-8">
@@ -222,15 +203,19 @@ export default function CoffeeShopScreen() {
                         <Pressable
                           key={value}
                           onPress={() => criteria.setValue(value)}
-                          className={`w-12 h-12 rounded-full items-center justify-center ${
+                          className={`w-8 h-8 rounded-full items-center justify-center ${
                             value === criteria.value
                               ? "bg-[#854836]"
                               : "bg-gray-100"
                           }`}
                         >
-                          <Text className={`text-xl ${
-                            value === criteria.value ? "text-white" : "text-gray-400"
-                          }`}>
+                          <Text
+                            className={`text-xl ${
+                              value === criteria.value
+                                ? "text-white"
+                                : "text-gray-400"
+                            }`}
+                          >
                             {value}
                           </Text>
                         </Pressable>

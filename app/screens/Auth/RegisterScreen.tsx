@@ -46,7 +46,7 @@ const RegisterScreen = ({ navigation, route }: Props) => {
     }
   };
   return (
-    <SafeAreaView className="bg-[#D8D2C2] h-full justify-center item-center">
+    <SafeAreaView className="bg-[#F6F1ED] h-full justify-center item-center">
       <ScrollView className="w-full">
         <View className="w-full justify-center h-full px-4 my-6">
           <Image

@@ -129,7 +129,7 @@ const CreateForumPostScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F6F1ED',
   },
   header: {
     flexDirection: 'row',

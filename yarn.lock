@@ -4446,6 +4446,7 @@ __metadata:
     react: 18.3.1
     react-dom: 18.3.1
     react-native: 0.76.7
+    react-native-element-dropdown: ^2.12.4
     react-native-fast-image: ^8.6.3
     react-native-gesture-handler: ~2.20.2
     react-native-reanimated: ~3.16.1
@@ -9584,6 +9585,18 @@ __metadata:
     react-native-svg:
       optional: true
   checksum: b86b44620c8d572e58fb860b14dc271e492d76f1050fe649b59c5451fe96ceaf81fb472f0ff37ca29c83f022d07b428be5f57ffd50a68678fb8145c11b03b03e
+  languageName: node
+  linkType: hard
+
+"react-native-element-dropdown@npm:^2.12.4":
+  version: 2.12.4
+  resolution: "react-native-element-dropdown@npm:2.12.4"
+  dependencies:
+    lodash: ^4.17.21
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 4ac8962df350beb1a89d7994c4a96f06a5956f5ca7755e41b93c4d23873eedf4150903be74bbab8ebba9710da07c0c93ab29d2ff4345db797898ffef198bbadf
   languageName: node
   linkType: hard
 

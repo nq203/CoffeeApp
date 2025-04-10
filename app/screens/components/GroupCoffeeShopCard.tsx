@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
+  ImageBackground,
 } from "react-native";
 import { CoffeeShop, GroupOfCoffeeShop } from "@/app/Types/types";
 import CoffeeShopCard from "./CoffeeShopCard";
@@ -30,18 +31,30 @@ const GroupCoffeeShopCard: React.FC<Props> = ({ group, location }) => {
     };
     fetchData();
   }, [expanded]);
+  const randomImage = useMemo(() => {
+    if (!group.images || group.images.length === 0) return null;
+    const index = Math.floor(Math.random() * group.images.length);
+    return group.images[index];
+  }, [group.images]);
   return (
     <View className="mb-2.5 rounded-lg ">
       <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-        <Text className="font-bold text-lg">{group.title}</Text>
-        <View className="flex flex-row flex-wrap p-2.5 h-[200px]">
-           {group.images.slice(0, 4).map((image, index) => (
-            <Image
-            key={index}
-            source={{ uri: image }}
-            className="w-1/2 h-1/2 border-2 border-white rounded-lg"
-          />
-           ))}
+        <View className="relative h-[250px] rounded-lg overflow-hidden">
+          {/* Blurred Background */}
+          <ImageBackground
+            source={{ uri: randomImage }}
+            className="w-full h-full justify-end bg-b"
+          >
+            {/* Optional dark overlay for better contrast */}
+            <View className="absolute inset-0 bg-black/30 rounded-lg" />
+
+            {/* Title Text */}
+            <View className="pb-5 items-center">
+              <Text className="text-white font-bold text-xl px-4 py-2 rounded-lg">
+                {group.title}
+              </Text>
+            </View>
+          </ImageBackground>
         </View>
       </TouchableOpacity>
       {expanded && (
