@@ -7,34 +7,53 @@ import { sampleCoffeeShop } from "@/app/sampleData";
 import { sampleReview } from "@/app/sampleData";
 import * as Location from "expo-location";
 import { getAllCoffeeShops } from "@/Firebase/Services/coffeeShopService";
-import { CoffeeShop, GroupOfCoffeeShop } from "@/app/Types/types";
+import { CoffeeShop, GroupOfCoffeeShop, User } from "@/app/Types/types";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setLocation } from "@/app/redux/slices/locationSlice";
 import { setUser } from "@/app/redux/slices/userSlice";
 import { RootState } from "@/app/redux/store";
 import { useAuth } from "@/Firebase/Services/authService";
 import { getUser } from "@/Firebase/Services/userService";
-import { addGroupOfCoffeeShop, getAllGroupsOfCoffeeShops } from "@/Firebase/Services/groupCoffeeShopService";
+import {
+  addGroupOfCoffeeShop,
+  getAllGroupsOfCoffeeShops,
+} from "@/Firebase/Services/groupCoffeeShopService";
 import GroupCoffeeShopCard from "../components/GroupCoffeeShopCard";
 // import MapScreen from "../components/MapComponent";
-const HomeScreen = () => {
+const HomeScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
-  const { location, loading } = useSelector((state: RootState) => state.location);
-  const [groupCoffeeShops, setGroupCoffeeShops] = useState<GroupOfCoffeeShop[]> ([]);
-   const [refreshing, setRefreshing] = useState(false);
+  const { location, loading } = useSelector(
+    (state: RootState) => state.location
+  );
+  const [groupCoffeeShops, setGroupCoffeeShops] = useState<GroupOfCoffeeShop[]>(
+    []
+  );
+  const [refreshing, setRefreshing] = useState(false);
   const { currentUser } = useAuth();
-  useEffect(()=>{
+  useEffect(() => {
     async function storeUser() {
-      if(currentUser){
-        const data= await getUser(currentUser?.uid);
+      if (currentUser) {
+        const data = await getUser(currentUser?.uid);
+
         console.log(data);
-        if (data)
-        dispatch(setUser(data));
+        if (data) {
+          dispatch(setUser(data));
+          checkCompletedProfile(data);
+        }
       }
     }
     storeUser();
-
-  },[currentUser]);
+  }, [currentUser]);
+  const checkCompletedProfile = (user: User) => {
+      const isProfileCompleted =
+        user.name && user.name.trim() !== "" &&
+        user.photoURL && user.photoURL.trim() !== ""
+        &&user.favorites;
+    
+      if (!isProfileCompleted) {
+        navigation.navigate("onBoard");
+      }
+  };
   useEffect(() => {
     async function getCurrentLocation() {
       dispatch(setLoading(true));
@@ -50,31 +69,40 @@ const HomeScreen = () => {
     getCurrentLocation();
   }, [currentUser]);
   async function fetchGroupCoffeeShops() {
-      setLoading(true);
-      try {
-        const data = await getAllGroupsOfCoffeeShops();
-        // await addGroupOfCoffeeShop(data[0]);
-        setGroupCoffeeShops(data);
-      } catch (error) {
-        console.error("Error fetching coffee shops:", error);
-      }
-      setLoading(false);
+    setLoading(true);
+    try {
+      const data = await getAllGroupsOfCoffeeShops();
+      // await addGroupOfCoffeeShop(data[0]);
+      setGroupCoffeeShops(data);
+    } catch (error) {
+      console.error("Error fetching coffee shops:", error);
     }
+    setLoading(false);
+  }
   useEffect(() => {
-    
-
     fetchGroupCoffeeShops();
   }, []);
   return (
     <View className="flex-1 justify-start item-center p-2.5 bg-[#F6F1ED]">
-      <ScrollView refreshControl={<RefreshControl refreshing={refreshing} onRefresh={fetchGroupCoffeeShops}/>}>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={fetchGroupCoffeeShops}
+          />
+        }
+      >
         <SlideShow />
         <View className="w-full">
-        {loading ? (
+          {loading ? (
             <ActivityIndicator size="large" color="#854836" />
           ) : (
             groupCoffeeShops.map((group) => (
-              <GroupCoffeeShopCard key={group.id} group={group} location={location} />
+              <GroupCoffeeShopCard
+                key={group.id}
+                group={group}
+                location={location}
+              />
             ))
           )}
         </View>

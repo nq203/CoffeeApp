@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,24 +9,45 @@ import {
   Image,
 } from "react-native";
 import { getUser, updateUser } from "@/Firebase/Services/userService";
+import { getAllUtilities } from "@/Firebase/Services/utilitiesService";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "@/app/redux/store";
 import * as ImagePicker from "expo-image-picker";
-import { Edit, Icon } from "lucide-react-native";
+import { Edit } from "lucide-react-native";
 import { setUser } from "@/app/redux/slices/userSlice";
+import { Utilities } from "@/app/Types/types";
 
 const EditProfileScreen = ({ navigation }: { navigation: any }) => {
   const { user } = useSelector((state: RootState) => state.user);
   const dispatch = useDispatch();
   const [image, setImage] = useState<string>(user?.photoURL || '');
-  const [updateImage,setUpdateImage] = useState<boolean>(false);
+  const [updateImage, setUpdateImage] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     name: user?.name || "",
     password: "",
-    favorites: user?.favorites.join(", ") || "",
+    favorites: user?.favorites || [],
     photoURL: user?.photoURL || "",
   });
+  const [utilities, setUtilities] = useState<Utilities[]>([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchUtilities();
+  }, []);
+
+  const fetchUtilities = async () => {
+    const data = await getAllUtilities();
+    setUtilities(data);
+  };
+
+  const toggleUtility = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      favorites: prev.favorites.includes(id)
+        ? prev.favorites.filter((u) => u !== id)
+        : [...prev.favorites, id],
+    }));
+  };
 
   const handleInputChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -55,21 +76,15 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
   const handleUpdateProfile = async () => {
     setLoading(true);
     try {
-      console.log(image);
       const updatedData = {
         ...formData,
-        favorites: formData.favorites.split(",").map((item) => item.trim()),
+        photoURL: updateImage ? image : formData.photoURL,
       };
-      if (updateImage) {
-        updatedData.photoURL = image;
-      }
-
       if (user) {
         const result = await updateUser(user.id, updatedData);
         if (result.success) {
           Alert.alert("Success", "Profile updated successfully!");
           const data = await getUser(user.id);
-          console.log(data);
           if (data) dispatch(setUser(data));
           navigation.goBack();
         }
@@ -85,8 +100,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
   return (
     <ScrollView className="flex-1 p-4 bg-[#F6F1ED]">
       {/* Profile Card */}
-
-      <View className=" items-center mb-6">
+      <View className="items-center mb-6">
         <Pressable onPress={pickImage}>
           <View className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-200">
             {image ? (
@@ -107,9 +121,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
 
       {/* Update Name */}
       <View className="bg-white rounded-xl p-4 shadow-md mb-4">
-        <Text className="text-lg font-semibold text-[#8B4513] mb-2">
-          Update Name
-        </Text>
+        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Update Name</Text>
         <TextInput
           value={formData.name}
           onChangeText={(value) => handleInputChange("name", value)}
@@ -120,9 +132,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
 
       {/* Update Password */}
       <View className="bg-white rounded-xl p-4 shadow-md mb-4">
-        <Text className="text-lg font-semibold text-[#8B4513] mb-2">
-          Update Password
-        </Text>
+        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Update Password</Text>
         <TextInput
           value={formData.password}
           onChangeText={(value) => handleInputChange("password", value)}
@@ -132,30 +142,40 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
         />
       </View>
 
-      {/* Update Favorites */}
+      {/* Select Utilities */}
       <View className="bg-white rounded-xl p-4 shadow-md mb-4">
-        <Text className="text-lg font-semibold text-[#8B4513] mb-2">
-          Your Favorite Coffees
-        </Text>
-        <TextInput
-          value={formData.favorites}
-          onChangeText={(value) => handleInputChange("favorites", value)}
-          placeholder="Enter favorites (comma-separated)"
-          className="border border-gray-300 rounded-lg p-2"
-        />
+        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Sở thích quán cafe</Text>
+        <View className="flex-row flex-wrap">
+          {utilities.map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => toggleUtility(item.id)}
+              className={`px-4 py-2 rounded-full m-1 border ${
+                formData.favorites.includes(item.id) ? "bg-[#854836] border-[#854836]" : "bg-white border-gray-300"
+              }`}
+            >
+              <Text
+                className={`${
+                  formData.favorites.includes(item.id) ? "text-white" : "text-gray-800"
+                } font-semibold`}
+              >
+                {item.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
 
       {/* Buttons */}
       <View className="flex-row justify-between mt-6">
         <Pressable
           onPress={handleUpdateProfile}
-          disabled={loading}
           className={`px-6 py-3 rounded-lg ${
             loading ? "bg-gray-300" : "bg-[#8B4513]"
           }`}
         >
           <Text className="text-white font-bold">
-            {loading ? "Updating..." : "Save Changes"}
+            {loading ? "Updating..." : "Lưu"}
           </Text>
         </Pressable>
         <Pressable

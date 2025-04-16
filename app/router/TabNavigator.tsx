@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/Home/HomeScreen';
 import SreachScreen from '../screens/Search/SreachScreen';
 import ForumScreen from '../screens/Forum/ForumScreen';
-import ProfileNavigator from './ProfileNavigator'; // Import the ProfileNavigator
+import ProfileScreen from '../screens/Profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -38,7 +38,7 @@ export default function TabNavigator() {
       <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Search" component={SreachScreen} options={{ headerShown: false }} />
       <Tab.Screen name="Forum" component={ForumScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Profile" component={ProfileNavigator} options={{ headerShown: false }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
     </Tab.Navigator>
   );
 }

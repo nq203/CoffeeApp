@@ -5,6 +5,8 @@ export type RootStackParamList = {
   Register: {itemId: number, otherParam?: string};
   CreateForumPost: undefined;
   Post: { post: ForumPost };
+  EditProfile: undefined;
+  onBoard: undefined;
 };
 
 export type BottomTabParamList = {
@@ -63,11 +65,11 @@ export interface ForumPost {
   content: string;
   images: string[];
   liked: string[];
-  comment: string[];
   created_at: string;
 }
 export interface Comment {
   id: string;
+  post_id: string;
   user: string;
   liked: string[];
   content: string;

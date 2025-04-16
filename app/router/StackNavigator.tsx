@@ -12,6 +12,8 @@ import { useAuth } from "../../Firebase/Services/authService";
 import CoffeeShopScreen from "../screens/CoffeeShopScreen/CoffeeShopScreen";
 import CreateForumPostScreen from "../screens/Forum/CreateForumPostScreen";
 import PostScreen from "../screens/Forum/PostScreen";
+import EditProfileScreen from "../screens/Profile/EditProfileScreen";
+import OnboardingSwiper from "../screens/OnboardingScreen/OnboradingScreen";
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -36,15 +38,50 @@ export default function StackNavigator() {
     <Stack.Navigator initialRouteName={currentUser ? "Tabs" : "Login"}>
       {currentUser ? (
         <>
-          <Stack.Screen name="Tabs" component={TabNavigator} options={{ headerShown: false }} />
-          <Stack.Screen name="CoffeeShop" component={CoffeeShopScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="CreateForumPost" component={CreateForumPostScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Post" component={PostScreen} options={{ headerShown: false }}/>
+          <Stack.Screen
+            name="Tabs"
+            component={TabNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="onBoard"
+            component={OnboardingSwiper}
+            options={{ headerShown: false }}
+          />
+
+          <Stack.Screen
+            name="CoffeeShop"
+            component={CoffeeShopScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CreateForumPost"
+            component={CreateForumPostScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Post"
+            component={PostScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="EditProfile"
+            component={EditProfileScreen}
+            options={{ headerShown: false }}
+          />
         </>
       ) : (
         <>
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }}/>
-          <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+          <Stack.Screen
+            name="Login"
+            component={LoginScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ headerShown: false }}
+          />
         </>
       )}
     </Stack.Navigator>

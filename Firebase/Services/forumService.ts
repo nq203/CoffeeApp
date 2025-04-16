@@ -4,7 +4,6 @@ import { uploadImageFromUri } from "./storageService";
 import { auth } from "../firebaseConfig";
 
 const forumPostCollection = collection(db, 'forum_posts');
-const commentPostCollection = collection(db, 'comments');
 
 export const createForumPost = async (forum: Omit<ForumPost, 'id' | 'created_at'>) => {
   try {
@@ -60,24 +59,3 @@ export const getAllForumPosts = async (): Promise<ForumPost[]> => {
   }
 };
 
-export const addComment = async (comment: Omit<Comment, 'id' | 'created_at'>) => {
-  try {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      throw new Error('User must be authenticated to add a comment');
-    }
-
-    const commentData: Omit<Comment, 'id'> = {
-      ...comment,
-      user: currentUser.uid,
-      created_at: new Date().toISOString(),
-    };
-
-    const docRef = await addDoc(commentPostCollection, commentData);
-    console.log("Comment added with ID:", docRef.id);
-    return docRef.id;
-  } catch (error) {
-    console.error("Error adding comment:", error);
-    throw error;
-  }
-};

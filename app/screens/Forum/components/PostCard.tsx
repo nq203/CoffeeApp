@@ -6,6 +6,9 @@ import { getUser } from '@/Firebase/Services/userService';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '@/app/Types/types';
+import { RootState } from '@/app/redux/store';
+import { useSelector } from 'react-redux';
+import { TextInput } from 'react-native';
 
 type PostCardNavigationProp = StackNavigationProp<RootStackParamList, 'Post'>;
 
@@ -17,7 +20,7 @@ interface PostProps {
 const PostCard: React.FC<PostProps> = ({ post }) => {
     const navigation = useNavigation<PostCardNavigationProp>();
     const [postUser, setPostUser] = useState<User | null>(null);
-
+    const {user} = useSelector((state : RootState) => state.user);
     useEffect(() => {
         const fetchPostUser = async () => {
             console.log("id user: ",post.user);
@@ -75,14 +78,16 @@ const PostCard: React.FC<PostProps> = ({ post }) => {
       )}
 
       {/* Footer */}
-      <View className="flex-row border-t border-gray-100 pt-3 mt-2">
-        <TouchableOpacity className="flex-row items-center mr-6">
+      <View className="flex-row items-center border-t border-gray-200 pt-2">
+        <Image
+          source={user?.photoURL ? { uri: user.photoURL } : require('@/assets/images/default-avatar.jpg')}
+          className="w-8 h-8 rounded-full mr-2"
+        />
+        <View className="flex-1 bg-gray-100 rounded-full px-3 py-1 mr-2">
+          <Text className="text-gray-500 text-sm">Send message...</Text>
+        </View>
+        <TouchableOpacity>
           <Ionicons name="heart-outline" size={20} color="#666" />
-          <Text className="text-gray-600 ml-1">Like</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="flex-row items-center">
-          <Ionicons name="chatbubble-outline" size={20} color="#666" />
-          <Text className="text-gray-600 ml-1">0 Comments</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
