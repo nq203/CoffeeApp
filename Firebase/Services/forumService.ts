@@ -2,8 +2,25 @@ import { Comment, ForumPost } from "@/app/Types/types";
 import { db, collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, storage, query, orderBy } from "../firebaseConfig";
 import { uploadImageFromUri } from "./storageService";
 import { auth } from "../firebaseConfig";
+import { arrayRemove, arrayUnion } from "firebase/firestore";
 
 const forumPostCollection = collection(db, 'forum_posts');
+export const getPostById = async (postId: string): Promise<ForumPost | null> => {
+  try {
+    const postDoc = await getDoc(doc(forumPostCollection, postId));
+    if (postDoc.exists()) {
+      return {
+        id: postDoc.id,
+        ...(postDoc.data() as Omit<ForumPost, 'id'>),
+      };
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error getting post by ID:", error);
+    return null;
+  }
+};
 
 export const createForumPost = async (forum: Omit<ForumPost, 'id' | 'created_at'>) => {
   try {
@@ -58,4 +75,28 @@ export const getAllForumPosts = async (): Promise<ForumPost[]> => {
     return [];
   }
 };
+export const getFavoriteUserPost = async (postId: string): Promise<string[]> => {
+  try {
+    const postDoc = await getPostById(postId);
+    if(!postDoc) {
+      return [];
+    }
+    return postDoc.liked || [];
+  } catch (error) {
+    console.error("Error getting users who liked the post:", error);
+    return [];
+  }
+};
 
+
+export const toggleFavoritePost = async (postId: string, userId: string, liked: boolean) => {
+  try {
+    const postRef = doc(db, "forum_posts", postId);
+    await updateDoc(postRef, {
+      liked: liked ? arrayRemove(userId) : arrayUnion(userId),
+    });
+  } catch (error) {
+    console.error("Error toggling favorite:", error);
+    throw error;
+  }
+};

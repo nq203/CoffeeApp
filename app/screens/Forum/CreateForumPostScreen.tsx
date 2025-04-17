@@ -1,23 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  StyleSheet,
   ScrollView,
   Image,
   Alert,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import * as ImagePicker from 'expo-image-picker';
-import { createForumPost } from '@/Firebase/Services/forumService';
-import { useNavigation } from '@react-navigation/native';
-import { ForumPost } from '@/app/Types/types';
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { createForumPost } from "@/Firebase/Services/forumService";
+import { useNavigation } from "@react-navigation/native";
+import { ForumPost } from "@/app/Types/types";
 
 const CreateForumPostScreen = () => {
   const navigation = useNavigation();
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +39,7 @@ const CreateForumPostScreen = () => {
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      Alert.alert('Error', 'Please enter some content for your post');
+      Alert.alert("Lỗi", "Vui lòng nhập nội dung bài viết.");
       return;
     }
 
@@ -48,165 +47,85 @@ const CreateForumPostScreen = () => {
 
     setIsSubmitting(true);
     try {
-      const postData: Omit<ForumPost, 'id' | 'created_at'> = {
+      const postData: Omit<ForumPost, "id" | "created_at"> = {
         content: content.trim(),
         images: images,
-        user: '',
+        user: "",
         liked: [],
-        comment: []
       };
-      
+
       await createForumPost(postData);
-      Alert.alert('Success', 'Post created successfully');
+      Alert.alert("Thành công", "Bài viết đã được đăng.");
       navigation.goBack();
     } catch (error) {
-      console.error('Error creating post:', error);
-      Alert.alert('Error', 'Failed to create post. Please try again.');
+      console.error("Error creating post:", error);
+      Alert.alert("Lỗi", "Đăng bài thất bại. Vui lòng thử lại.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+    <View className="flex-1 bg-[#F6F1ED]">
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-[#E5D3C8] bg-[#FFF8F3]">
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#6B3E26" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Create Post</Text>
-        <TouchableOpacity 
+        <Text className="text-lg font-bold text-[#6B3E26]">Tạo bài viết</Text>
+        <TouchableOpacity
           onPress={handleSubmit}
-          style={[styles.submitButton, isSubmitting && styles.submitButtonDisabled]}
           disabled={isSubmitting}
+          className={`px-3 py-1 rounded-lg ${
+            isSubmitting ? "bg-[#CBB3A3]" : "bg-[#854836]"
+          }`}
         >
-          <Text style={[styles.submitText, isSubmitting && styles.submitTextDisabled]}>
-            {isSubmitting ? 'Posting...' : 'Post'}
+          <Text className="text-white font-semibold">
+            {isSubmitting ? "Đang đăng..." : "Đăng"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content}>
+      {/* Content */}
+      <ScrollView className="flex-1 px-4 py-4">
         <TextInput
-          style={styles.input}
-          placeholder="What's on your mind?"
+          className="text-base min-h-[120px] bg-white p-4 rounded-xl border border-[#E5D3C8] mb-4 text-[#3F2A1D]"
+          placeholder="Bạn đang nghĩ gì khi thưởng thức cà phê?"
+          placeholderTextColor="#9C7B64"
           multiline
           value={content}
           onChangeText={setContent}
         />
 
+        {/* Image Grid */}
         {images.length > 0 && (
-          <View style={styles.imageGrid}>
+          <View className="flex-row flex-wrap gap-2 mb-4">
             {images.map((uri, index) => (
-              <View key={index} style={styles.imageContainer}>
-                <Image source={{ uri }} style={styles.image} />
+              <View key={index} className="relative w-[48%] aspect-square rounded-xl overflow-hidden">
+                <Image source={{ uri }} className="w-full h-full rounded-xl" />
                 <TouchableOpacity
-                  style={styles.removeButton}
                   onPress={() => removeImage(index)}
+                  className="absolute top-1 right-1 bg-black/60 rounded-full p-1"
                 >
-                  <Ionicons name="close-circle" size={24} color="#fff" />
+                  <Ionicons name="close-circle" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
             ))}
           </View>
         )}
 
-        <TouchableOpacity 
-          style={styles.addImageButton} 
+        {/* Add Image Button */}
+        <TouchableOpacity
           onPress={pickImage}
           disabled={isSubmitting}
+          className="flex-row items-center gap-2 border border-[#854836] px-4 py-2 rounded-xl bg-[#FFF8F3] self-start"
         >
-          <Ionicons name="image" size={24} color="#007AFF" />
-          <Text style={styles.addImageText}>Add Image</Text>
+          <Ionicons name="cafe-outline" size={20} color="#854836" />
+          <Text className="text-[#854836] font-medium">Thêm ảnh</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F6F1ED',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  submitButton: {
-    padding: 8,
-  },
-  submitButtonDisabled: {
-    opacity: 0.5,
-  },
-  submitText: {
-    color: '#007AFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  submitTextDisabled: {
-    color: '#999',
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  input: {
-    fontSize: 16,
-    lineHeight: 24,
-    minHeight: 100,
-    textAlignVertical: 'top',
-    marginBottom: 16,
-  },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
-  },
-  imageContainer: {
-    width: '48%',
-    aspectRatio: 1,
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-  },
-  removeButton: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#000',
-    borderRadius: 12,
-  },
-  addImageButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    borderRadius: 8,
-    gap: 8,
-  },
-  addImageText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
-});
-
-export default CreateForumPostScreen; 
+export default CreateForumPostScreen;

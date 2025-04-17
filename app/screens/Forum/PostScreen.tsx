@@ -8,6 +8,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -24,17 +25,22 @@ import {
 } from "@/Firebase/Services/commentService";
 import { getUser } from "@/Firebase/Services/userService";
 import { auth } from "@/Firebase/firebaseConfig";
+import { getFavoriteUserPost } from "@/Firebase/Services/forumService";
+import { useSelector } from "react-redux";
+import { RootState } from "@/app/redux/store";
 
 type PostScreenRouteProp = RouteProp<RootStackParamList, "Post">;
 
 const PostScreen = () => {
   const route = useRoute<PostScreenRouteProp>();
   const navigation = useNavigation();
+  const {user} = useSelector((state : RootState) => state.user);
   const { post } = route.params;
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUsers, setCommentUsers] = useState<{ [uid: string]: User }>({});
   const [postUser, setPostUser] = useState<User | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const fetchComments = async () => {
     const data = await getCommentsByPostId(post.id);
@@ -52,6 +58,7 @@ const PostScreen = () => {
 
     setCommentUsers(userMap);
   };
+
 
   const handleAddComment = async () => {
     if (!comment.trim()) return;
@@ -83,6 +90,7 @@ const PostScreen = () => {
     };
     fetchComments();
     fetchPostUser();
+    
   }, []);
 
   return (
@@ -129,12 +137,16 @@ const PostScreen = () => {
               className="flex-row space-x-3"
             >
               {post.images.map((image, index) => (
-                <Image
+                <TouchableOpacity
                   key={index}
-                  source={{ uri: image }}
-                  className="w-48 h-40 rounded-lg"
-                  resizeMode="cover"
-                />
+                  onPress={() => setSelectedImage(image)}
+                >
+                  <Image
+                    source={{ uri: image }}
+                    className="w-48 h-40 rounded-lg"
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
               ))}
             </ScrollView>
           )}
@@ -182,12 +194,25 @@ const PostScreen = () => {
           />
           <TouchableOpacity
             onPress={handleAddComment}
-            className="bg-blue-500 rounded-full p-2"
+            className="bg-[#8B4513] rounded-full p-2"
           >
             <Ionicons name="send" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </View>
+      <Modal visible={!!selectedImage} transparent={true}>
+        <TouchableOpacity
+          className="flex-1 bg-black justify-center items-center"
+          onPress={() => setSelectedImage(null)}
+          activeOpacity={1}
+        >
+          <Image
+            source={{ uri: selectedImage || "" }}
+            className="w-full h-full"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };

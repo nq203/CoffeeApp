@@ -59,10 +59,7 @@ const ProfileScreen = ({navigation}:any) => {
         {/* Nút Chỉnh sửa & Đóng góp */}
         <View className="flex-row mt-4 justify-around">
           <Pressable className="bg-white px-4 py-2 rounded-lg mr-2" onPress={() => navigation.navigate('EditProfile')}>
-            <Text className="text-black font-bold">Chỉnh sửa</Text>
-          </Pressable>
-          <Pressable className="bg-white px-4 py-2 rounded-lg">
-            <Text className="text-black font-bold">Đóng góp</Text>
+            <Text className="text-black font-bold">Chỉnh sửa thông tin cá nhân</Text>
           </Pressable>
         </View>
       </View>

@@ -19,6 +19,7 @@ import {
   getAllGroupsOfCoffeeShops,
 } from "@/Firebase/Services/groupCoffeeShopService";
 import GroupCoffeeShopCard from "../components/GroupCoffeeShopCard";
+
 // import MapScreen from "../components/MapComponent";
 const HomeScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
@@ -93,6 +94,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
         }
       >
         <SlideShow />
+
         <View className="w-full">
           {loading ? (
             <ActivityIndicator size="large" color="#854836" />

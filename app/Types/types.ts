@@ -53,7 +53,7 @@ export interface User {
   name: string;
   email: string;
   photoURL: string;
-  favorites: string[];
+  favorites: number[];
   favorite_cafes: string[];
   created_at: string;
   updated_at: string;

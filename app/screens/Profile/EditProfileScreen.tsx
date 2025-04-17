@@ -22,12 +22,18 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
   const dispatch = useDispatch();
   const [image, setImage] = useState<string>(user?.photoURL || '');
   const [updateImage, setUpdateImage] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    password: string;
+    favorites: number[];
+    photoURL: string;
+  }>({
     name: user?.name || "",
     password: "",
     favorites: user?.favorites || [],
     photoURL: user?.photoURL || "",
   });
+  
   const [utilities, setUtilities] = useState<Utilities[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -40,14 +46,15 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
     setUtilities(data);
   };
 
-  const toggleUtility = (id: string) => {
+  const toggleUtility = (code: number) => {
     setFormData((prev) => ({
       ...prev,
-      favorites: prev.favorites.includes(id)
-        ? prev.favorites.filter((u) => u !== id)
-        : [...prev.favorites, id],
+      favorites: prev.favorites.includes(code)
+        ? prev.favorites.filter((c) => c !== code)
+        : [...prev.favorites, code],
     }));
   };
+  
 
   const handleInputChange = (key: string, value: string) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -75,28 +82,52 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
 
   const handleUpdateProfile = async () => {
     setLoading(true);
+    if(!user) return;
     try {
-      const updatedData = {
-        ...formData,
-        photoURL: updateImage ? image : formData.photoURL,
-      };
-      if (user) {
-        const result = await updateUser(user.id, updatedData);
-        if (result.success) {
-          Alert.alert("Success", "Profile updated successfully!");
-          const data = await getUser(user.id);
-          if (data) dispatch(setUser(data));
-          navigation.goBack();
-        }
+      // Tạo object chỉ chứa các trường đã thay đổi
+      const updatedFields: any = {};
+  
+      if (formData.name !== user.name) {
+        updatedFields.name = formData.name;
+      }
+  
+      if (formData.password.trim() !== "") {
+        updatedFields.password = formData.password;
+      }
+  
+      if (
+        JSON.stringify(formData.favorites.sort()) !==
+        JSON.stringify((user.favorites || []).sort())
+      ) {
+        updatedFields.favorites = formData.favorites;
+      }
+  
+      if (updateImage && image !== user.photoURL) {
+        updatedFields.photoURL = image; // URI sẽ được xử lý trong updateUser
+      }
+  
+      // Nếu không có gì thay đổi thì thoát ra luôn
+      if (Object.keys(updatedFields).length === 0) {
+        navigation.navigate('Tabs');
+        setLoading(false);
+        return;
+      }
+  
+      const result = await updateUser(user.id, updatedFields);
+      if (result.success) {
+        Alert.alert("Thành công", "Cập nhật hồ sơ thành công!");
+        const data = await getUser(user.id);
+        if (data) dispatch(setUser(data));
+        navigation.navigate('Tabs');
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      Alert.alert("Error", "Could not update profile. Please try again.");
+      Alert.alert("Lỗi", "Không thể cập nhật hồ sơ. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
-
+  
   return (
     <ScrollView className="flex-1 p-4 bg-[#F6F1ED]">
       {/* Profile Card */}
@@ -121,7 +152,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
 
       {/* Update Name */}
       <View className="bg-white rounded-xl p-4 shadow-md mb-4">
-        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Update Name</Text>
+        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Cập nhật tên</Text>
         <TextInput
           value={formData.name}
           onChangeText={(value) => handleInputChange("name", value)}
@@ -132,7 +163,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
 
       {/* Update Password */}
       <View className="bg-white rounded-xl p-4 shadow-md mb-4">
-        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Update Password</Text>
+        <Text className="text-lg font-semibold text-[#8B4513] mb-2">Cập nhật mật khẩu</Text>
         <TextInput
           value={formData.password}
           onChangeText={(value) => handleInputChange("password", value)}
@@ -149,14 +180,14 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
           {utilities.map((item) => (
             <Pressable
               key={item.id}
-              onPress={() => toggleUtility(item.id)}
+              onPress={() => toggleUtility(item.code)}
               className={`px-4 py-2 rounded-full m-1 border ${
-                formData.favorites.includes(item.id) ? "bg-[#854836] border-[#854836]" : "bg-white border-gray-300"
+                formData.favorites.includes(item.code) ? "bg-[#854836] border-[#854836]" : "bg-white border-gray-300"
               }`}
             >
               <Text
                 className={`${
-                  formData.favorites.includes(item.id) ? "text-white" : "text-gray-800"
+                  formData.favorites.includes(item.code) ? "text-white" : "text-gray-800"
                 } font-semibold`}
               >
                 {item.name}
@@ -182,7 +213,7 @@ const EditProfileScreen = ({ navigation }: { navigation: any }) => {
           onPress={() => navigation.goBack()}
           className="px-6 py-3 rounded-lg bg-gray-400"
         >
-          <Text className="text-white font-bold">Cancel</Text>
+          <Text className="text-white font-bold">Thoát</Text>
         </Pressable>
       </View>
     </ScrollView>
