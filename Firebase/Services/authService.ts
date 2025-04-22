@@ -13,11 +13,12 @@ export const useAuth = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup khi component unmount
+    return () => unsubscribe();
   }, []);
 
   return { currentUser, loading };
 };
+
 
 // 🟢 **Đăng xuất User**
 export const logoutUser = async () => {

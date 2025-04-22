@@ -77,7 +77,7 @@ const PostScreen = () => {
 
       await addComment(commentData);
       setComment("");
-      // fetchComments();
+      fetchComments();
     } catch (err) {
       console.error("Error posting comment:", err);
     }

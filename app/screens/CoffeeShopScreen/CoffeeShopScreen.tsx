@@ -48,19 +48,17 @@ export default function CoffeeShopScreen() {
     { label: "Đồ uống", value: ratingDrinks, setValue: setRatingDrinks },
     { label: "Giá cả", value: ratingPrice, setValue: setRatingPrice },
   ];
-
+  const fetchReviews = async () => {
+    try {
+      const data = await getReviewsByShopId(shop.id);
+      setReviews(data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách đánh giá:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchReviews = async () => {
-      try {
-        const data = await getReviewsByShopId(shop.id);
-        setReviews(data);
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách đánh giá:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchReviews();
   }, [shop.id]);
 
@@ -107,6 +105,7 @@ export default function CoffeeShopScreen() {
     } catch (error) {
       Alert.alert("Lỗi", "Không thể gửi đánh giá!");
     }
+    fetchReviews();
   };
 
   const getEmojiForRating = (rating: number) => {

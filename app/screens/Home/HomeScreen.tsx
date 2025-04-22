@@ -47,9 +47,8 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   }, [currentUser]);
   const checkCompletedProfile = (user: User) => {
       const isProfileCompleted =
-        user.name && user.name.trim() !== "" &&
-        user.photoURL && user.photoURL.trim() !== ""
-        &&user.favorites;
+        user.name && user.name.trim() !== "" 
+        &&user.favorites.length;
     
       if (!isProfileCompleted) {
         navigation.navigate("onBoard");

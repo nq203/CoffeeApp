@@ -33,15 +33,20 @@ const FormFiled: React.FC<FormFiledProps> = ({
           onChangeText={handleChangeText}
           placeholder={placeholder}
           placeholderTextColor="#7b7b8b"
-          secureTextEntry={title ==="Password" && !showPassword}
+          secureTextEntry={
+            (title.toLowerCase() === "password" ||
+              title.toLowerCase() === "password again") &&
+            !showPassword
+          }
         ></TextInput>
-        <TouchableOpacity onPress={()=>setShowPassword(!showPassword)}>
-          {title == "Password" && (
+        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+          {(title.toLowerCase() === "password" ||
+            title.toLowerCase() === "password again") && (
             <Ionicons
               name={showPassword ? "eye" : "eye-off-outline"}
               color="#543310"
               size={32}
-            ></Ionicons>
+            />
           )}
         </TouchableOpacity>
       </View>
