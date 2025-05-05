@@ -18,6 +18,7 @@ import {
   Comment,
   RootStackParamList,
   User,
+  CoffeeShop,
 } from "@/app/Types/types";
 import {
   addComment,
@@ -28,6 +29,8 @@ import { auth } from "@/Firebase/firebaseConfig";
 import { getFavoriteUserPost } from "@/Firebase/Services/forumService";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/redux/store";
+import { getCoffeeShopById } from "@/Firebase/Services/coffeeShopService";
+import CoffeeShopCard from "../components/CoffeeShopCard";
 
 type PostScreenRouteProp = RouteProp<RootStackParamList, "Post">;
 
@@ -35,13 +38,20 @@ const PostScreen = () => {
   const route = useRoute<PostScreenRouteProp>();
   const navigation = useNavigation();
   const {user} = useSelector((state : RootState) => state.user);
+  const { location } = useSelector((state: RootState) => state.location);
   const { post } = route.params;
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentUsers, setCommentUsers] = useState<{ [uid: string]: User }>({});
   const [postUser, setPostUser] = useState<User | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
+  const [coffeeShop, setCoffeeShop] = useState<CoffeeShop | null>(null);
+  const fetchCafeTag = async () => {
+    if (post.cafeId) {
+      const data = await getCoffeeShopById(post.cafeId);
+      setCoffeeShop(data);
+    }
+  };
   const fetchComments = async () => {
     const data = await getCommentsByPostId(post.id);
     console.log("comment", data);
@@ -90,7 +100,7 @@ const PostScreen = () => {
     };
     fetchComments();
     fetchPostUser();
-    
+    fetchCafeTag();
   }, []);
 
   return (
@@ -151,7 +161,7 @@ const PostScreen = () => {
             </ScrollView>
           )}
         </View>
-
+        {coffeeShop && <CoffeeShopCard shop={coffeeShop} location={location} />}
         {/* Comments */}
         <Text className="text-lg font-semibold mb-3">Comments</Text>
         {comments.length === 0 ? (

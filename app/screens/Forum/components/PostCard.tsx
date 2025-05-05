@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { ForumPost, User } from "@/app/Types/types";
+import { CoffeeShop, ForumPost, User } from "@/app/Types/types";
 import { getUser } from "@/Firebase/Services/userService";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -13,6 +13,7 @@ import {
   getFavoriteUserPost,
   toggleFavoritePost,
 } from "@/Firebase/Services/forumService";
+import { getCoffeeShopById } from "@/Firebase/Services/coffeeShopService";
 
 type PostCardNavigationProp = StackNavigationProp<RootStackParamList, "Post">;
 
@@ -25,6 +26,7 @@ const PostCard: React.FC<PostProps> = ({ post }) => {
   const navigation = useNavigation<PostCardNavigationProp>();
   const [postUser, setPostUser] = useState<User | null>(null);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [coffeeShop, setCoffeeShop] = useState<CoffeeShop | null>(null);
   const { user } = useSelector((state: RootState) => state.user);
   useEffect(() => {
     const fetchPostUser = async () => {
@@ -35,7 +37,14 @@ const PostCard: React.FC<PostProps> = ({ post }) => {
     };
     fetchPostUser();
     fetchFavorites();
+    fetchCafeTag();
   }, []);
+  const fetchCafeTag = async () => {
+    if (post.cafeId) {
+      const data = await getCoffeeShopById(post.cafeId);
+      setCoffeeShop(data);
+    }
+  };
   const fetchFavorites = async () => {
     if (!user) return;
     try {
@@ -65,6 +74,7 @@ const PostCard: React.FC<PostProps> = ({ post }) => {
       onPress={handlePress}
     >
       {/* Header */}
+      {/* Header */}
       <View className="flex-row items-center mb-3">
         <Image
           source={
@@ -74,14 +84,23 @@ const PostCard: React.FC<PostProps> = ({ post }) => {
           }
           className="w-10 h-10 rounded-full mr-3"
         />
-        <View>
+        <View className="flex-1">
           <Text className="font-bold text-base">{postUser?.name}</Text>
           <Text className="text-gray-500 text-xs">
             {new Date(post.created_at).toLocaleString()}
           </Text>
+
+          {/* Nếu có quán cafe thì hiện tại đây */}
+          {coffeeShop && (
+            <View className="flex-row items-center mt-1">
+              <Ionicons name="cafe-outline" size={14} color="#854836" />
+              <Text className="ml-1 text-xs text-[#854836]">
+                Đang ở <Text className="font-semibold">{coffeeShop.name}</Text>
+              </Text>
+            </View>
+          )}
         </View>
       </View>
-
       {/* Content */}
       <Text className="text-gray-800 text-base mb-3" numberOfLines={3}>
         {post.content}

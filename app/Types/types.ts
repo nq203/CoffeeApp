@@ -63,6 +63,7 @@ export interface ForumPost {
   id: string;
   user: string;
   content: string;
+  cafeId?: string;
   images: string[];
   liked: string[];
   created_at: string;

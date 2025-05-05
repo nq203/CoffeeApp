@@ -73,8 +73,6 @@ export default function CoffeeShopScreen() {
     Linking.openURL(googleMapsUrl);
   };
 
-
-
   const handleSubmitReview = async () => {
     if (!comment.trim()) {
       Alert.alert("Lỗi", "Vui lòng nhập đánh giá!");
@@ -124,7 +122,24 @@ export default function CoffeeShopScreen() {
         return "😊";
     }
   };
+  const isShopOpen = () => {
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+    const currentMinute = currentTime.getMinutes();
+    const openHour = parseInt(shop.opening_hours.split(":")[0]);
+    const openMinute = parseInt(shop.opening_hours.split(":")[1]);
+    const closeHour = parseInt(shop.closing_hours.split(":")[0]);
+    const closeMinute = parseInt(shop.closing_hours.split(":")[1]);
 
+    const openTimeInMinutes = openHour * 60 + openMinute;
+    const closeTimeInMinutes = closeHour * 60 + closeMinute;
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+    return (
+      currentTimeInMinutes >= openTimeInMinutes &&
+      currentTimeInMinutes <= closeTimeInMinutes
+    );
+  };
   return (
     <ScrollView className="bg-white flex-1">
       <Swiper
@@ -161,6 +176,18 @@ export default function CoffeeShopScreen() {
             </Text>
           )}
         </View>
+        <Text className="text-gray-600 mt-4">
+          <Text
+            className={`text-lg font-semibold ${
+              isShopOpen() ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {isShopOpen() ? "Đang mở cửa" : "Đang đóng cửa"}
+          </Text>
+          <Text className="text-gray-500 text-sm mt-1 ml-2">
+            {` • ${shop.opening_hours} - ${shop.closing_hours}`}
+          </Text>
+        </Text>
 
         <Pressable
           onPress={openGoogleMaps}
@@ -175,12 +202,12 @@ export default function CoffeeShopScreen() {
           </View>
         </Pressable>
 
-        
-
         {/* Danh sách đánh giá */}
-        {loading ? <ActivityIndicator />
-        :<UserCommentCard reviews={reviews}/>}
-       
+        {loading ? (
+          <ActivityIndicator />
+        ) : (
+          <UserCommentCard reviews={reviews} />
+        )}
 
         {/* Form thêm đánh giá */}
         <View className="mt-8">

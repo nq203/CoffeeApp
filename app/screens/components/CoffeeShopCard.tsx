@@ -29,7 +29,6 @@ const CoffeeShopCard: React.FC<{
   shop: CoffeeShop;
   location: Location.LocationObject | null;
 }> = ({ shop, location }) => {
-  const [modalVisible, setModalVisible] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
   const { currentUser, loading } = useAuth();
   const [ isOpen, setIsOpen ] = useState<boolean>(true);
@@ -45,7 +44,24 @@ const CoffeeShopCard: React.FC<{
       }
     };
     fetchFavorites();
+    checkOpeningStatus();
   }, [currentUser, shop.id]);
+  const checkOpeningStatus = () => {
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+    const currentMinute = currentTime.getMinutes();
+    
+    // Chuyển đổi giờ mở cửa và đóng cửa thành số (giờ * 60 + phút)
+    const [openHour, openMinute] = shop.opening_hours.split(":").map(Number);
+    const [closeHour, closeMinute] = shop.closing_hours.split(":").map(Number);
+    
+    const openTime = openHour * 60 + openMinute;
+    const closeTime = closeHour * 60 + closeMinute;
+    const currentTimeInMinutes = currentHour * 60 + currentMinute;
+
+    // Kiểm tra xem giờ hiện tại có nằm trong khoảng giờ hoạt động của quán
+    setIsOpen(currentTimeInMinutes >= openTime && currentTimeInMinutes <= closeTime);
+  };
   const toggleFavorite = () => {
     setIsFavorite(!isFavorite);
     if (currentUser) toggleFavoriteCafe(currentUser.uid, shop.id);

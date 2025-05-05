@@ -13,12 +13,18 @@ import RecommendCoffeeShop from "./components/RecommendCoffeeShop";
 const SreachScreen = () => {
   const [filterName, setFilterName] = useState<string>("");
   const [filteraddress, setFilterAdress] = useState<string>("");
-  const [filterFavorite, setFilterFavorite] = useState<number | null>();
+  const [filterFavorite, setFilterFavorite] = useState<number[] | null>();
   const [coffeeShops, setCoffeeShops] = useState<CoffeeShop[]>([]);
   const [filterCoffeeShops, setFilterCoffeeShops] = useState<CoffeeShop[]>([]);
   const [showRecommend, setShowRecommend] = useState<boolean>(true); // Toggle state
   const { location } = useSelector((state: RootState) => state.location);
-
+  function normalizeText(text: string) {
+    return text
+      .normalize("NFD") // tách chữ và dấu
+      .replace(/[\u0300-\u036f]/g, "") // xóa dấu
+      .toLowerCase()
+      .trim();
+  }
   useEffect(() => {
     const fetchCoffeeShops = async () => {
       try {
@@ -33,9 +39,9 @@ const SreachScreen = () => {
 
   const onSearch = (text: string) => setFilterName(text);
 
-  const onFilter = (utility: number | null, address: string) => {
+  const onFilter = (utility: number[] | null ) => {
     setFilterFavorite(utility);
-    setFilterAdress(address);
+    // setFilterAdress(address);
     setShowRecommend(false); // Automatically switch to search mode when filtering
   };
 
@@ -57,9 +63,17 @@ const SreachScreen = () => {
     }
 
     if (filterName) {
-      currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) =>
-        shop.name.toLowerCase().includes(filterName.toLowerCase())
-      );
+      const normalizedFilter = normalizeText(filterName);
+      const filterWords = normalizedFilter.split(/\s+/);
+
+      currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) => {
+        const normalizedName = normalizeText(shop.name);
+        const normalizedAddress = normalizeText(shop.address);
+
+        return filterWords.every((word) =>
+          normalizedName.includes(word) || normalizedAddress.includes(word)
+        );
+      });
     }
 
     if (filteraddress) {
@@ -68,12 +82,12 @@ const SreachScreen = () => {
       );
     }
 
-    if (filterFavorite !== null && filterFavorite !== undefined) {
+    if (filterFavorite && filterFavorite.length > 0) {
       currentCoffeeShopfilter = currentCoffeeShopfilter.filter((shop) =>
-        shop.utilities.includes(filterFavorite)
+        filterFavorite.every((favoriteCode) => shop.utilities.includes(favoriteCode))
       );
     }
-
+    
     setFilterCoffeeShops(currentCoffeeShopfilter);
   }, [filterName, filterFavorite, filteraddress, coffeeShops, location]);
 

@@ -14,7 +14,7 @@ import {
 
 const slides = [
   {
-    title: "Chào mừng đến với CafeFinder",
+    title: "Chào mừng đến với Cafe đê",
     subtitle: "Khám phá, đánh giá và chia sẻ quán cafe yêu thích của bạn.",
     icon: MapPin,
     bgColor: "#F6F1ED",      // tone nền chính

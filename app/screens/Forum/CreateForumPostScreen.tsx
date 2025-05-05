@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,14 +12,29 @@ import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { createForumPost } from "@/Firebase/Services/forumService";
 import { useNavigation } from "@react-navigation/native";
-import { ForumPost } from "@/app/Types/types";
+import { CoffeeShop, ForumPost } from "@/app/Types/types";
+import { AwardIcon } from "lucide-react-native";
+import { getAllCoffeeShops } from "@/Firebase/Services/coffeeShopService";
 
 const CreateForumPostScreen = () => {
   const navigation = useNavigation();
   const [content, setContent] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [coffeeShops, setCoffeeShops] = useState<CoffeeShop[]>([]);
+  const [selectedCafe, setSelectedCafe] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getAllCoffeeShops();
+      if (data) setCoffeeShops(data);
+    };
+    fetchData();
+  }, []);
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -36,6 +51,7 @@ const CreateForumPostScreen = () => {
   const removeImage = (index: number) => {
     setImages(images.filter((_, i) => i !== index));
   };
+  const handleChooseCafe = () => {};
 
   const handleSubmit = async () => {
     if (!content.trim()) {
@@ -52,7 +68,9 @@ const CreateForumPostScreen = () => {
         images: images,
         user: "",
         liked: [],
+        cafeId: selectedCafe ? selectedCafe.id : undefined,
       };
+      
 
       await createForumPost(postData);
       Alert.alert("Thành công", "Bài viết đã được đăng.");
@@ -101,7 +119,10 @@ const CreateForumPostScreen = () => {
         {images.length > 0 && (
           <View className="flex-row flex-wrap gap-2 mb-4">
             {images.map((uri, index) => (
-              <View key={index} className="relative w-[48%] aspect-square rounded-xl overflow-hidden">
+              <View
+                key={index}
+                className="relative w-[48%] aspect-square rounded-xl overflow-hidden"
+              >
                 <Image source={{ uri }} className="w-full h-full rounded-xl" />
                 <TouchableOpacity
                   onPress={() => removeImage(index)}
@@ -113,6 +134,44 @@ const CreateForumPostScreen = () => {
             ))}
           </View>
         )}
+        {/* Dropdown chọn quán cafe */}
+        <View className="mb-4">
+          <Text className="text-[#6B3E26] font-semibold mb-2">
+            Bạn muốn chia sẻ về quán Cafe nào ?
+          </Text>
+          <View className="bg-white rounded-xl border border-[#E5D3C8] overflow-hidden">
+            <TouchableOpacity
+              onPress={() => setShowDropdown(!showDropdown)}
+              className="flex-row justify-between items-center p-4"
+            >
+              <Text className="text-[#3F2A1D]">
+                {selectedCafe ? selectedCafe.name : "Chọn quán cafe..."}
+              </Text>
+              <Ionicons
+                name={showDropdown ? "chevron-up" : "chevron-down"}
+                size={20}
+                color="#854836"
+              />
+            </TouchableOpacity>
+
+            {showDropdown && (
+              <View className="border-t border-[#E5D3C8]">
+                {coffeeShops.map((shop) => (
+                  <TouchableOpacity
+                    key={shop.id}
+                    onPress={() => {
+                      setSelectedCafe({ id: shop.id, name: shop.name });
+                      setShowDropdown(false);
+                    }}
+                    className="p-4 border-b border-[#F6F1ED]"
+                  >
+                    <Text className="text-[#3F2A1D]">{shop.name}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        </View>
 
         {/* Add Image Button */}
         <TouchableOpacity
